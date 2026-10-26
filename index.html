@@ -1,0 +1,470 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Escalier à limon central</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Disposition : maquette 3D à gauche, réglages, contrôles et liste de débit à droite ; une seule colonne sous 880px. */
+:root{
+  --bg:#E7EBE8; --surface:#F3F6F4; --stage:#DCE3DF; --ink:#16201B; --muted:#56655C;
+  --line:#C3CCC6; --accent:#1F5FA8; --accent-ink:#FFFFFF;
+  --ok:#2B7A4B; --warn:#A8620A; --bad:#B3261E; --grid:#B4C0B8;
+  --f-display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-body:"Barlow",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101613; --surface:#18201C; --stage:#0C110F; --ink:#E3EAE5; --muted:#93A39A;
+    --line:#2C3832; --accent:#6FA8E8; --accent-ink:#0B1420;
+    --ok:#5CC48A; --warn:#E3A340; --bad:#F07C72; --grid:#26322C;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101613; --surface:#18201C; --stage:#0C110F; --ink:#E3EAE5; --muted:#93A39A;
+  --line:#2C3832; --accent:#6FA8E8; --accent-ink:#0B1420;
+  --ok:#5CC48A; --warn:#E3A340; --bad:#F07C72; --grid:#26322C;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font:15px/1.45 var(--f-body);
+  padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1320px;margin:0 auto;display:grid;gap:18px}
+h1{font:700 clamp(28px,4vw,40px)/1.05 var(--f-display);letter-spacing:.02em;text-transform:uppercase;margin:0;text-wrap:balance}
+.sub{margin:6px 0 0;color:var(--muted);font:12.5px/1.5 var(--f-mono)}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}
+.stage{position:relative;height:clamp(420px,76vh,760px);background:var(--stage);border:1px solid var(--line);border-radius:6px;overflow:hidden;min-width:0}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab;outline:none}
+canvas:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+.views{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap}
+button{font:500 13px/1 var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px 11px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{position:absolute;left:12px;bottom:10px;right:12px;margin:0;font:11.5px/1.3 var(--f-mono);color:var(--muted);pointer-events:none}
+.panel{display:grid;gap:24px;min-width:0}
+.panel section{border-top:2px solid var(--ink);padding-top:10px;min-width:0}
+h2{font:600 15px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;margin:0 0 12px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:center;margin-bottom:11px}
+.row label{font-size:13.5px}
+.num{display:flex;align-items:center;gap:5px;font:13px var(--f-mono);color:var(--muted)}
+.num input{width:66px;font:600 13px var(--f-mono);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:5px 6px;text-align:right}
+.row input[type=range]{grid-column:1/-1;width:100%;margin:0;accent-color:var(--accent)}
+.toggles{display:grid;gap:8px;margin:14px 0}
+.toggles label{display:flex;gap:9px;align-items:center;font-size:13.5px;cursor:pointer}
+.toggles input{accent-color:var(--accent);width:16px;height:16px}
+.note{margin:12px 0 0;color:var(--muted);font-size:12.5px;line-height:1.5}
+.chk{display:grid;margin:0}
+.chk>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.chk dt{font-size:13.5px}
+.chk dd{margin:0;font:13px var(--f-mono);text-align:right}
+.st{grid-column:1/-1;font-size:12px;font-weight:600}
+.st::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:6px}
+.st.ok{color:var(--ok)} .st.warn{color:var(--warn)} .st.bad{color:var(--bad)}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font:600 11.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 6px 6px 0}
+td{padding:8px 6px 8px 0;border-top:1px solid var(--line);vertical-align:top}
+td.m{font:12.5px var(--f-mono)}
+td.q{font:600 13px var(--f-mono)}
+@media (max-width:880px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .stage{height:min(72vh,520px);min-height:340px}
+}
+</style>
+
+<main class="wrap">
+  <header>
+    <h1>Escalier à limon central</h1>
+    <p class="sub" id="sub"></p>
+  </header>
+  <div class="app">
+    <section class="stage" id="stage" aria-label="Maquette 3D de l'escalier">
+      <canvas id="cv" tabindex="0" aria-label="Escalier en 3D : glisser pour tourner, molette pour zoomer"></canvas>
+      <div class="views" role="group" aria-label="Points de vue">
+        <button type="button" data-view="iso">3D</button>
+        <button type="button" data-view="profil">Profil</button>
+        <button type="button" data-view="face">Face</button>
+        <button type="button" data-view="dessus">Dessus</button>
+      </div>
+      <p class="hint">Glisser : tourner · Molette ou deux doigts : zoom · Flèches : tourner</p>
+    </section>
+    <aside class="panel">
+      <section>
+        <h2>Dimensions</h2>
+        <div id="ctl"></div>
+        <div class="toggles">
+          <label for="t_dims"><input type="checkbox" id="t_dims" checked> Afficher les cotes</label>
+          <label for="t_risers"><input type="checkbox" id="t_risers"> Ajouter des contremarches</label>
+        </div>
+        <button type="button" id="reset">Valeurs d'origine</button>
+        <p class="note">Les 21 cm du limon sont la largeur du bois vue de dessus. La hauteur de la planche se règle à part : à 21 cm, l'indicateur « matière sous entailles » passe au rouge.</p>
+      </section>
+      <section>
+        <h2>Contrôles</h2>
+        <dl class="chk" id="chk"></dl>
+      </section>
+      <section>
+        <h2>Liste de débit</h2>
+        <div class="tbl"><table id="cut"></table></div>
+        <p class="note">La dernière hauteur est le plancher de l'étage. Dimensions en cm, bois massif (chêne, frêne ou hêtre).</p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- Paramètres ---------- */
+var DEF={n:13,R:19,G:23,tw:80,t:4.5,nose:3,sw:21,hb:30,explode:0,risers:false,dims:true};
+var P=Object.assign({},DEF);
+var CTL=[
+  {k:'n',l:'Nombre de hauteurs (marches)',u:'',min:4,max:20,step:1},
+  {k:'R',l:'Hauteur de marche',u:'cm',min:14,max:22,step:0.5},
+  {k:'G',l:'Giron (profondeur utile)',u:'cm',min:18,max:32,step:0.5},
+  {k:'tw',l:'Largeur des marches',u:'cm',min:60,max:120,step:1},
+  {k:'t',l:'Épaisseur des marches',u:'cm',min:3,max:6,step:0.5},
+  {k:'nose',l:'Débord du nez de marche',u:'cm',min:0,max:5,step:0.5},
+  {k:'sw',l:'Largeur du limon (vue de dessus)',u:'cm',min:8,max:30,step:1},
+  {k:'hb',l:'Hauteur de la planche du limon',u:'cm',min:20,max:40,step:1},
+  {k:'explode',l:'Vue éclatée',u:'cm',min:0,max:60,step:1}
+];
+
+function f(v){return (Math.round(v*10)/10).toString().replace('.',',');}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function css(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
+
+/* ---------- Calculs ---------- */
+function calc(p){
+  var L=Math.hypot(p.G,p.R);
+  var notch=p.R*p.G/L;                 // profondeur d'entaille mesurée perpendiculairement à la pente
+  var web=p.hb-notch;                  // matière restante sous les entailles
+  var webG=Math.max(web,1);
+  var H=p.n*p.R, run=(p.n-1)*p.G;
+  var ang=Math.atan2(p.R,p.G)*180/Math.PI;
+  var blondel=2*p.R+p.G;
+  var t=p.t;
+  var top=[[0,p.R-t]];
+  for(var i=1;i<=p.n-1;i++){ top.push([i*p.G,i*p.R-t]); top.push([i*p.G,(i+1)*p.R-t]); }
+  var xe=run, yTopEnd=p.n*p.R-t;
+  var shift=webG*L/p.G;                // décalage vertical de la sous-face
+  var yb=function(x){return (p.R/p.G)*x-t-shift;};
+  var x0=p.G*(t+shift)/p.R;            // point où la sous-face touche le sol
+  var poly=[[0,0],[x0,0],[xe,yb(xe)]].concat(top.slice().reverse());
+  var ux=p.G/L, uy=p.R/L, mn=1e9, mx=-1e9;
+  poly.forEach(function(q){var s=q[0]*ux+q[1]*uy; if(s<mn)mn=s; if(s>mx)mx=s;});
+  var len=mx-mn;
+  var order=Math.ceil((len+10)/10)*10;
+  return {L:L,notch:notch,web:web,H:H,run:run,ang:ang,blondel:blondel,poly:poly,len:len,order:order};
+}
+
+/* ---------- Scène ---------- */
+var cv=document.getElementById('cv'), stage=document.getElementById('stage');
+var renderer,scene,camera,group,grid,need=true,TH={};
+var S={az:0.75,el:0.3,r:720,target:null};
+var gl=true;
+try{
+  renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+}catch(e){
+  gl=false;
+  var msg=document.createElement('p');
+  msg.style.cssText='padding:24px;margin:0;color:var(--muted)';
+  msg.textContent="Ce navigateur ne peut pas afficher la 3D. Les contrôles et la liste de débit restent valables.";
+  stage.appendChild(msg);
+}
+
+if(gl){
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(35,1,5,6000);
+  S.target=new THREE.Vector3(150,115,0);
+  group=new THREE.Group(); scene.add(group);
+
+  scene.add(new THREE.HemisphereLight(0xffffff,0x8d8a80,0.8));
+  var sun=new THREE.DirectionalLight(0xffffff,0.85);
+  sun.position.set(380,720,420); sun.target.position.set(150,100,0);
+  sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
+  var sc=sun.shadow.camera; sc.left=-500; sc.right=500; sc.top=500; sc.bottom=-500; sc.near=10; sc.far=1800;
+  sun.shadow.bias=-0.0004;
+  scene.add(sun); scene.add(sun.target);
+
+  var shadowPlane=new THREE.Mesh(new THREE.PlaneGeometry(1400,1400),new THREE.ShadowMaterial({opacity:0.22}));
+  shadowPlane.rotation.x=-Math.PI/2; shadowPlane.position.set(150,0,0); shadowPlane.receiveShadow=true;
+  scene.add(shadowPlane);
+}
+
+function makeGrid(){
+  var g=new THREE.GridHelper(1000,50,new THREE.Color(TH.grid),new THREE.Color(TH.grid));
+  g.position.set(150,-0.3,0);
+  return g;
+}
+
+function disposeObj(o){
+  o.traverse(function(x){
+    if(x.geometry)x.geometry.dispose();
+    if(x.material){ if(x.material.map)x.material.map.dispose(); x.material.dispose(); }
+  });
+}
+
+function label(text){
+  var c=document.createElement('canvas'); c.width=256; c.height=96;
+  var g=c.getContext('2d');
+  var r=14,x=6,y=8,w=244,h=80;
+  g.beginPath();
+  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+  g.fillStyle=TH.surface; g.fill();
+  g.lineWidth=4; g.strokeStyle=TH.accent; g.stroke();
+  g.fillStyle=TH.ink; g.font='600 42px "JetBrains Mono", monospace';
+  g.textAlign='center'; g.textBaseline='middle';
+  g.fillText(text,128,50);
+  var tex=new THREE.CanvasTexture(c);
+  var spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true}));
+  spr.scale.set(52,19.5,1); spr.renderOrder=12;
+  return spr;
+}
+
+function dim(a,b,tick,text){
+  var mat=new THREE.LineBasicMaterial({color:new THREE.Color(TH.accent),depthTest:false,transparent:true});
+  [[a,b],[a.clone().sub(tick),a.clone().add(tick)],[b.clone().sub(tick),b.clone().add(tick)]].forEach(function(pair){
+    var l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pair),mat);
+    l.renderOrder=11; group.add(l);
+  });
+  var s=label(text); s.position.copy(a).add(b).multiplyScalar(0.5); group.add(s);
+}
+
+function build(){
+  if(!gl)return;
+  while(group.children.length){ var o=group.children[group.children.length-1]; group.remove(o); disposeObj(o); }
+  var c=calc(P);
+  var edge=new THREE.LineBasicMaterial({color:0x2e1d0c,transparent:true,opacity:0.5});
+  function box(w,h,d,x,y,z,color,opacity){
+    var m=new THREE.MeshStandardMaterial({color:color,roughness:0.78,metalness:0});
+    if(opacity<1){m.transparent=true;m.opacity=opacity;}
+    var mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
+    mesh.position.set(x,y,z); mesh.castShadow=true; mesh.receiveShadow=true;
+    if(opacity>=1) mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry),edge));
+    group.add(mesh); return mesh;
+  }
+
+  // Limon central : profil crénelé extrudé sur sa largeur
+  var shape=new THREE.Shape();
+  c.poly.forEach(function(q,i){ if(i===0)shape.moveTo(q[0],q[1]); else shape.lineTo(q[0],q[1]); });
+  shape.closePath();
+  var sg=new THREE.ExtrudeGeometry(shape,{depth:P.sw,bevelEnabled:false});
+  sg.translate(0,0,-P.sw/2);
+  var sm=new THREE.Mesh(sg,new THREE.MeshStandardMaterial({color:0xa4753f,roughness:0.8}));
+  sm.castShadow=true; sm.receiveShadow=true;
+  sm.add(new THREE.LineSegments(new THREE.EdgesGeometry(sg,20),edge));
+  group.add(sm);
+
+  // Marches et contremarches
+  var depth=P.G+P.nose, rt=2;
+  for(var i=1;i<=P.n-1;i++){
+    var left=(i-1)*P.G-P.nose;
+    box(depth,P.t,P.tw,left+depth/2,i*P.R-P.t/2+P.explode,0,0xd9ae72,1);
+    if(P.risers){
+      box(rt,P.R-P.t,P.tw,(i-1)*P.G-rt/2-P.explode*0.6,(i-1)*P.R+(P.R-P.t)/2,0,0xc79a5c,1);
+    }
+  }
+
+  // Plancher de l'étage
+  box(150,20,280,c.run+75,P.n*P.R-10,0,0x8f9a94,0.55);
+
+  // Cotes
+  if(P.dims){
+    var zs=P.tw/2+28;
+    dim(new THREE.Vector3(-34,0,zs),new THREE.Vector3(-34,c.H,zs),new THREE.Vector3(7,0,0),f(c.H)+' cm');
+    dim(new THREE.Vector3(0,-1,zs+10),new THREE.Vector3(c.run,-1,zs+10),new THREE.Vector3(0,7,0),f(c.run)+' cm');
+    dim(new THREE.Vector3(-10,0,zs),new THREE.Vector3(-10,P.R,zs),new THREE.Vector3(4,0,0),f(P.R));
+    dim(new THREE.Vector3(0,P.R+9,zs),new THREE.Vector3(P.G,P.R+9,zs),new THREE.Vector3(0,4,0),f(P.G));
+  }
+  need=true;
+}
+
+/* ---------- Caméra ---------- */
+function updateCam(){
+  if(!gl)return;
+  var cosE=Math.cos(S.el);
+  camera.position.set(S.target.x-Math.sin(S.az)*cosE*S.r,S.target.y+Math.sin(S.el)*S.r,S.target.z+Math.cos(S.az)*cosE*S.r);
+  camera.lookAt(S.target);
+  need=true;
+}
+var VIEWS={
+  iso:{az:0.75,el:0.3,r:720},
+  profil:{az:0,el:0.04,r:780},
+  face:{az:Math.PI/2,el:0.12,r:780},
+  dessus:{az:0,el:1.5,r:820}
+};
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function goTo(v){
+  if(reduce){S.az=v.az;S.el=v.el;S.r=v.r;updateCam();return;}
+  var a0=S.az,e0=S.el,r0=S.r,t0=performance.now();
+  function step(now){
+    var k=Math.min(1,(now-t0)/450); k=1-Math.pow(1-k,3);
+    S.az=a0+(v.az-a0)*k; S.el=e0+(v.el-e0)*k; S.r=r0+(v.r-r0)*k;
+    updateCam(); if(k<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-view]'),function(b){
+  b.addEventListener('click',function(){goTo(VIEWS[b.getAttribute('data-view')]);});
+});
+
+var ptrs=new Map(), lastDist=0;
+function pdist(){var a=Array.from(ptrs.values()); return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);}
+cv.addEventListener('pointerdown',function(e){
+  try{cv.setPointerCapture(e.pointerId);}catch(_){}
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2)lastDist=pdist();
+  cv.style.cursor='grabbing';
+});
+cv.addEventListener('pointermove',function(e){
+  var p=ptrs.get(e.pointerId); if(!p)return;
+  var dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY;
+  if(ptrs.size===1){ S.az-=dx*0.007; S.el=clamp(S.el+dy*0.007,-0.15,1.52); }
+  else if(ptrs.size===2){ var d=pdist(); if(lastDist)S.r=clamp(S.r*lastDist/d,220,1800); lastDist=d; }
+  updateCam();
+});
+function endPtr(e){ ptrs.delete(e.pointerId); lastDist=0; if(!ptrs.size)cv.style.cursor='grab'; }
+cv.addEventListener('pointerup',endPtr);
+cv.addEventListener('pointercancel',endPtr);
+cv.addEventListener('wheel',function(e){
+  e.preventDefault();
+  S.r=clamp(S.r*Math.exp(e.deltaY*0.001),220,1800); updateCam();
+},{passive:false});
+cv.addEventListener('keydown',function(e){
+  var h=true;
+  if(e.key==='ArrowLeft')S.az+=0.08;
+  else if(e.key==='ArrowRight')S.az-=0.08;
+  else if(e.key==='ArrowUp')S.el=clamp(S.el+0.06,-0.15,1.52);
+  else if(e.key==='ArrowDown')S.el=clamp(S.el-0.06,-0.15,1.52);
+  else if(e.key==='+'||e.key==='=')S.r=clamp(S.r*0.92,220,1800);
+  else if(e.key==='-')S.r=clamp(S.r*1.08,220,1800);
+  else h=false;
+  if(h){e.preventDefault();updateCam();}
+});
+
+function resize(){
+  if(!gl)return;
+  var w=stage.clientWidth,h=stage.clientHeight;
+  if(!w||!h)return;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); need=true;
+}
+if(window.ResizeObserver) new ResizeObserver(resize).observe(stage); else window.addEventListener('resize',resize);
+
+function tick(){
+  if(gl&&need){ renderer.render(scene,camera); need=false; }
+  requestAnimationFrame(tick);
+}
+
+/* ---------- Thème ---------- */
+function readTheme(){
+  TH={stage:css('--stage'),grid:css('--grid'),accent:css('--accent'),ink:css('--ink'),surface:css('--surface')};
+}
+function applyTheme(){
+  readTheme();
+  if(gl){
+    scene.background=new THREE.Color(TH.stage);
+    if(grid){scene.remove(grid); grid.geometry.dispose(); grid.material.dispose();}
+    grid=makeGrid(); scene.add(grid);
+    build();
+  }
+}
+if(window.matchMedia){
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');
+  if(mq.addEventListener)mq.addEventListener('change',applyTheme);
+}
+new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- Interface ---------- */
+var ctl=document.getElementById('ctl');
+CTL.forEach(function(c){
+  var row=document.createElement('div'); row.className='row';
+  row.innerHTML=
+    '<label for="n_'+c.k+'">'+c.l+'</label>'+
+    '<span class="num"><input type="number" id="n_'+c.k+'" min="'+c.min+'" max="'+c.max+'" step="'+c.step+'" inputmode="decimal">'+(c.u?'<i style="font-style:normal">'+c.u+'</i>':'')+'</span>'+
+    '<input type="range" id="r_'+c.k+'" min="'+c.min+'" max="'+c.max+'" step="'+c.step+'" aria-label="'+c.l+'">';
+  ctl.appendChild(row);
+  var num=row.querySelector('#n_'+c.k), rng=row.querySelector('#r_'+c.k);
+  function set(v){
+    if(isNaN(v))return;
+    v=clamp(v,c.min,c.max); P[c.k]=v; num.value=v; rng.value=v;
+    build(); ui();
+  }
+  num.addEventListener('input',function(){ var v=parseFloat(num.value); if(!isNaN(v)&&v>=c.min&&v<=c.max){P[c.k]=v;rng.value=v;build();ui();} });
+  num.addEventListener('change',function(){ set(parseFloat(num.value)); });
+  rng.addEventListener('input',function(){ set(parseFloat(rng.value)); });
+});
+function syncControls(){
+  CTL.forEach(function(c){
+    document.getElementById('n_'+c.k).value=P[c.k];
+    document.getElementById('r_'+c.k).value=P[c.k];
+  });
+  document.getElementById('t_dims').checked=P.dims;
+  document.getElementById('t_risers').checked=P.risers;
+}
+document.getElementById('t_dims').addEventListener('change',function(e){P.dims=e.target.checked;build();});
+document.getElementById('t_risers').addEventListener('change',function(e){P.risers=e.target.checked;build();ui();});
+document.getElementById('reset').addEventListener('click',function(){
+  Object.assign(P,DEF); syncControls(); build(); ui();
+});
+
+function status(cls,txt){return '<span class="st '+cls+'">'+txt+'</span>';}
+function ui(){
+  var c=calc(P);
+  document.getElementById('sub').textContent=
+    P.n+' hauteurs de '+f(P.R)+' cm · giron '+f(P.G)+' cm · limon central '+f(P.sw)+' cm de large · bois';
+
+  var bl=c.blondel, blSt=(bl>=60&&bl<=64)?status('ok','Confortable (60 à 64)'):(bl>=57&&bl<=67)?status('warn','À revoir (60 à 64 recommandé)'):status('bad','Inconfortable (60 à 64 recommandé)');
+  var angSt=(c.ang>=28&&c.ang<=42)?status('ok','Pente courante'):(c.ang>45)?status('bad','Pente raide'):status('warn','Pente inhabituelle');
+  var webSt=c.web>=12?status('ok','Section solide'):c.web>=8?status('warn','Section juste, prévoir plus haut'):status('bad','Section trop faible pour un limon unique');
+  var rSt=P.R<=17?'':P.R<=20?'':status('warn','Marche haute');
+
+  var rows=[
+    ['Hauteur à franchir',P.n+' × '+f(P.R)+' = '+f(c.H)+' cm',''],
+    ['Emprise au sol',(P.n-1)+' × '+f(P.G)+' = '+f(c.run)+' cm',''],
+    ['Formule de Blondel (2h + g)',f(bl)+' cm',blSt],
+    ['Pente',f(c.ang)+'°',angSt],
+    ['Entaille (perpendiculaire)',f(c.notch)+' cm',''],
+    ['Matière sous les entailles',f(c.web)+' cm',webSt]
+  ];
+  if(rSt)rows.splice(1,0,['Hauteur de marche',f(P.R)+' cm',rSt]);
+  document.getElementById('chk').innerHTML=rows.map(function(r){
+    return '<div><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>'+r[2]+'</div>';
+  }).join('');
+
+  var cut='<thead><tr><th>Pièce</th><th>Qté</th><th>Dimensions</th></tr></thead><tbody>'+
+    '<tr><td>Limon central</td><td class="q">1</td><td class="m">'+f(P.hb)+' × '+f(P.sw)+' cm<br>longueur '+c.order+' cm<br>(pente utile '+f(c.len)+' cm)</td></tr>'+
+    '<tr><td>Marches</td><td class="q">'+(P.n-1)+'</td><td class="m">'+f(P.tw)+' × '+f(P.G+P.nose)+' × '+f(P.t)+' cm</td></tr>'+
+    (P.risers?'<tr><td>Contremarches</td><td class="q">'+(P.n-1)+'</td><td class="m">'+f(P.tw)+' × '+f(P.R-P.t)+' × 2 cm</td></tr>':'')+
+    '</tbody>';
+  document.getElementById('cut').innerHTML=cut;
+}
+
+/* ---------- Démarrage ---------- */
+syncControls();
+readTheme();
+if(gl){
+  scene.background=new THREE.Color(TH.stage);
+  grid=makeGrid(); scene.add(grid);
+  resize(); updateCam(); build();
+  requestAnimationFrame(tick);
+  if(document.fonts&&document.fonts.load){
+    document.fonts.load('600 42px "JetBrains Mono"').then(function(){build();}).catch(function(){});
+  }
+}
+ui();
+})();
+</script>
+
+</body></html>
